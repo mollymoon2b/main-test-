@@ -17,29 +17,6 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include <fcntl.h>
-/*
-void		check_ex01(void)
-{
-	int		fd;
-	char	*str;
-	char	*tmp;
-
-	if (!(fd = open("ex01/42", O_RDONLY)))
-		printf("\e[31mFile ex01/42 does not exist\n\e[0m");
-	if (get_next_line(fd, &str) <= 0)
-		printf("\e[31mFile ex01/42 seems empty\n\e[0m");
-	{
-		if (get_next_line(fd, &tmp) > 0)
-			printf("\e[31mFile ex01/42 seems too big\n\e[0m");
-		else
-		{
-			if (strcmp(str, "Coucou 42"))
-				printf("\e[31mThe content of ex01/42 seems wrong\n\e[0m");
-			else
-				printf("\e[32mEx01/42 : OK\n\e[0m");
-		}
-	}
-	}*/
 
 char *ft_dojoin(char const *s1, char const *s2)
 {
@@ -73,17 +50,19 @@ char		*ft_getfile(char *path)
 
 	if (!(fd = open(path, O_RDONLY)))
     {
-        printf("File %s can't be opened\n", path);
+        dprintf(1, "File %s can't be opened\n", path);
         return (NULL);
     }
 	buff = NULL;
-    while ((get_next_line(fd, &line) > 0) || (line && *line))
+    while ((get_next_line(fd, &line) > 0))
     {
-		printf("Looping : %s\n", line);
         tmp = ft_dojoin(buff, line);
+        free(buff);
+        free(line);
+        line = NULL;
         buff = tmp;
-		line = NULL;
     }
+    dprintf(1, "Returning %s\n", buff);
 	return (buff);
 }
 
@@ -93,9 +72,9 @@ void        check_ex01(void)
 
 	str = ft_getfile("ex01/42");
 	if (!ft_strcmp(str, "Coucou 42"))
-		printf("\e[32mEx01/42 : OK\n\e[0m");
+		dprintf(1, "\e[32mEx01/42 : OK\n\e[0m");
 	else
-		printf("\e[31mThe content of ex01/42 seems wrong\n\e[0m");
+		dprintf(1, "\e[31mThe content of ex01/42 seems wrong\n\e[0m");
 }
 
 static char *ft_get_word(char **str, char quote)
@@ -168,6 +147,20 @@ char **ft_parse_args(char *input)
 	return (argv);
 }
 
+void	ft_putargs(char **str)
+{
+	char **ptr;
+
+	ptr = str;
+	ft_putstr("Args are : ");
+	while (*ptr)
+	{
+		ft_putstr(*ptr++);
+		ft_putstr(" ");
+	}
+	ft_putchar('\n');
+
+}
 
 int ft_exec(char *code, char **envp)
 {
@@ -176,13 +169,15 @@ int ft_exec(char *code, char **envp)
 	pid_t	cpid;
 
 	argc = ft_parse_args(code);
-	path = ft_dojoin("/bin/", argc[0]);
-	if (access(path, X_OK))
+	path = ft_dojoin("/usr/bin/", argc[0]);
+	if (access(path, X_OK) != 0)
 	{
-		printf("%s can't be opened, unknown function\n", path);
+		dprintf(1, "'%s' can't be opened, unknown function\n", path);
 		return (0);
 	}
 	cpid = fork();
+	// dprintf(1, "Path is '%s' and ", path);
+	// ft_putargs(argc + 1);
 	if (cpid != -1)
 	{
 		if (cpid == 0)
@@ -205,8 +200,8 @@ void		check_exo(char *userpath, char *realcode, char *exo, char **envp)
 	usercode = ft_getfile(userpath);
 	if (!usercode || !*usercode)
 	{
-		printf("Code = %s\n", usercode);
-		printf("File %s seem not to exist\n", userpath);
+		dprintf(1, "Code = %s\n", usercode);
+		dprintf(1, "File %s seem not to exist\n", userpath);
 		return ;
 	}
 	fp = freopen("tmp1", "w+", stdout);
@@ -219,12 +214,12 @@ void		check_exo(char *userpath, char *realcode, char *exo, char **envp)
 	freopen ("/dev/tty", "a", stdout);
 	user = ft_getfile("tmp1");
 	real = ft_getfile("tmp2");
-//	remove("tmp1");
-//	remove("tmp2");
+	remove("tmp1");
+	remove("tmp2");
 	if (!ft_strcmp(user, real))
-		printf("Exercice %s valide !\n", exo);
+		dprintf(1, "Exercice %s valide !\n", exo);
 	else
-		printf("Exercice %s invalide ! : (reel) : %s, contre (vous) %s\n", exo, real, user);
+		dprintf(1, "Exercice %s invalide ! : (reel) : %s, contre (vous) %s\n", exo, real, user);
 	free(user);
 	free(real);
 }

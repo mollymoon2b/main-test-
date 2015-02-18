@@ -3,22 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adoussau <antoine@doussaud.org>            +#+  +:+       +#+        */
+/*   By: team sudo <sballet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2014/11/16 12:05:36 by adoussau          #+#    #+#             */
-/*   Updated: 2015/02/18 22:50:09 by ade-bonn         ###   ########.fr       */
+/*   Created: 2013/11/19 16:58:44 by sudo              #+#    #+#             */
+/*   Updated: 2013/11/23 04:39:29 by sudo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
+# define BUFF_SIZE 20
 
-# include "libft/libft.h"
-# include <unistd.h>
+# include <sys/types.h>
+# include <sys/uio.h>
 # include <fcntl.h>
+# include <stdlib.h>
+# include "libft.h"
 
-# define BUFF_SIZE 65
+typedef struct		s_save
+{
+	int				fd;
+	char			*save;
+	struct s_save 	*next;
+}					t_save;
 
-int		get_next_line(int fd, char **line);
+int		get_next_line(int const fd, char **line);
 
-#endif
+#endif /* GET_NEXT_LINE */
