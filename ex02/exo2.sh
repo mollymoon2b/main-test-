@@ -1,0 +1,1 @@
+find . -size +100kb | egrep '\.docx$'
